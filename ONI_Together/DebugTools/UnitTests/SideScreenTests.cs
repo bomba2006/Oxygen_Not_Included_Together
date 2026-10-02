@@ -3,6 +3,7 @@ using HarmonyLib;
 using ONI_Together.Networking;
 using ONI_Together.Patches.World.SideScreen;
 using UnityEngine;
+using static DetailsScreen;
 
 namespace ONI_Together.DebugTools.UnitTests
 {
@@ -14,7 +15,7 @@ namespace ONI_Together.DebugTools.UnitTests
 		[UnitTest(name: "Slider handlers do not accumulate across SetTarget", category: "Sync")]
 		public static UnitTestResult SliderHandlersDoNotAccumulate()
 		{
-			if (!MultiplayerSession.InSession)
+			if (!MultiplayerSession.InActiveSession)
 				return UnitTestResult.Fail("Not in a multiplayer session");
 
 			var details = DetailsScreen.Instance;
@@ -38,12 +39,9 @@ namespace ONI_Together.DebugTools.UnitTests
 			if (screen == null)
 				return UnitTestResult.Fail("SingleSliderSideScreen not found in DetailsScreen");
 
-			var target = SelectTool.Instance?.selected;
+			var target = details.target;
 			if (target == null)
 				return UnitTestResult.Fail("No building selected - select a slider-controlled building and rerun");
-
-			if (target.GetComponent<ISliderControl>() == null && target.GetComponent<ISingleSliderControl>() == null)
-				return UnitTestResult.Fail("Selected object has no slider control");
 
 			// Re-target the same building twice. The patch must replace the handler, not
 			// accumulate one per call (the regression behind issues #57/#58).
